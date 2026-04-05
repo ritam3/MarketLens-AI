@@ -1,0 +1,1 @@
+"""Sync daily bar data."""

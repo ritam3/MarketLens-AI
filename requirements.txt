@@ -1,0 +1,18 @@
+# Core app and config
+python-dotenv==1.2.2
+pydantic==2.12.5
+
+# AI and MCP
+openai==2.30.0
+mcp==1.27.0
+
+# UI
+gradio==6.11.0
+
+# Database and migrations
+sqlalchemy==2.0.49
+psycopg[binary]==3.3.3
+alembic==1.18.4
+
+# Testing
+pytest==9.0.2

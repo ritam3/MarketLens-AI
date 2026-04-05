@@ -1,0 +1,1 @@
+"""MarketLens AI application package."""
