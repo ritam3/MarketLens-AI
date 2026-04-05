@@ -10,10 +10,8 @@ def test_schema_defines_core_tables() -> None:
     expected_tables = (
         "create table if not exists instruments",
         "create table if not exists market_bars_daily",
-        "create table if not exists market_bars_intraday",
         "create table if not exists macro_series",
         "create table if not exists macro_observations",
-        "create table if not exists market_events",
         "create table if not exists fundamentals_quarterly",
         "create table if not exists market_metrics_daily",
     )
@@ -27,7 +25,7 @@ def test_schema_defines_key_indexes_and_trigger() -> None:
 
     expected_statements = (
         "create index if not exists idx_instruments_symbol on instruments(symbol);",
-        "create index if not exists idx_market_events_payload_gin",
+        "create index if not exists idx_fundamentals_quarterly_instrument_period",
         "create trigger trg_instruments_set_updated_at",
         "execute function set_updated_at();",
     )

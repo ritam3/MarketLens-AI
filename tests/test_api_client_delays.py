@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from app.data.clients import fmp_client, fred_client
+from app.data.clients import fmp_client, fred_client, sec_edgar_client
 
 
 def test_fmp_client_applies_request_delay(monkeypatch) -> None:
@@ -67,3 +67,29 @@ def test_fred_client_observations_alias_calls_series_observations(monkeypatch) -
         "observation_start": "2020-01-01",
         "observation_end": None,
     }
+
+
+def test_sec_edgar_client_applies_request_delay(monkeypatch) -> None:
+    calls: list[float] = []
+
+    def fake_sleep(seconds: float) -> None:
+        calls.append(seconds)
+
+    def fake_get(*args, **kwargs):
+        return SimpleNamespace(
+            raise_for_status=lambda: None,
+            json=lambda: {
+                "0": {"ticker": "AAPL", "cik_str": 320193, "title": "Apple Inc."},
+            },
+        )
+
+    monkeypatch.setattr(sec_edgar_client.time, "sleep", fake_sleep)
+    monkeypatch.setattr(sec_edgar_client.requests, "get", fake_get)
+
+    client = sec_edgar_client.SECEdgarClient(
+        user_agent="test-agent",
+        request_delay_seconds=0.3,
+    )
+    assert client.cik_for_ticker("AAPL") == "0000320193"
+
+    assert calls == [0.3]

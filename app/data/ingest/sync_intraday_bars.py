@@ -1,1 +1,0 @@
-"""Sync intraday bar data."""

@@ -5,7 +5,6 @@ from datetime import date, timedelta
 from sqlalchemy import text
 
 from app.data.clients.fmp_client import FMPClient
-from app.data.db.session import SessionLocal
 
 
 def fetch_instruments(db) -> list[dict]:
@@ -104,6 +103,8 @@ def upsert_daily_bar(db, instrument_id: int, row: dict) -> None:
 
 
 def main() -> None:
+    from app.data.db.session import SessionLocal
+
     client = FMPClient()
     db = SessionLocal()
 

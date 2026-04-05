@@ -1,11 +1,7 @@
 """Build derived metrics."""
 from __future__ import annotations
 
-from decimal import Decimal
-
 from sqlalchemy import text
-
-from app.data.db.session import SessionLocal
 
 
 def rebuild_metrics_for_instrument(db, instrument_id: int) -> int:
@@ -153,6 +149,8 @@ def backfill_shares_from_instruments(db) -> None:
 
 
 def main() -> None:
+    from app.data.db.session import SessionLocal
+
     db = SessionLocal()
 
     try:

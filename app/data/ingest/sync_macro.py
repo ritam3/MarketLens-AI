@@ -6,7 +6,6 @@ from decimal import Decimal, InvalidOperation
 from sqlalchemy import text
 
 from app.data.clients.fred_client import FREDClient
-from app.data.db.session import SessionLocal
 
 SERIES_IDS = [
     "CPIAUCSL",   # CPI
@@ -110,52 +109,9 @@ def upsert_macro_observation(db, series_id: str, row: dict) -> None:
     )
 
 
-def rebuild_cpi_events(db) -> None:
-    delete_stmt = text(
-        """
-        delete from market_events
-        where event_type = 'cpi_release'
-          and source = 'fred'
-        """
-    )
-    db.execute(delete_stmt)
-
-    insert_stmt = text(
-        """
-        insert into market_events (
-            event_type,
-            event_date,
-            instrument_id,
-            event_name,
-            actual_value,
-            expected_value,
-            surprise_value,
-            payload,
-            source
-        )
-        select
-            'cpi_release' as event_type,
-            mo.obs_date as event_date,
-            null as instrument_id,
-            'CPI Release' as event_name,
-            mo.value as actual_value,
-            null as expected_value,
-            null as surprise_value,
-            jsonb_build_object(
-                'series_id', mo.series_id,
-                'title', ms.title,
-                'raw_value', mo.raw_value
-            ) as payload,
-            'fred' as source
-        from macro_observations mo
-        join macro_series ms on ms.series_id = mo.series_id
-        where mo.series_id = 'CPIAUCSL'
-        """
-    )
-    db.execute(insert_stmt)
-
-
 def main() -> None:
+    from app.data.db.session import SessionLocal
+
     client = FREDClient()
     db = SessionLocal()
 
@@ -179,10 +135,6 @@ def main() -> None:
 
             db.commit()
             print(f"Upserted {len(observations)} observations for {series_id}")
-
-        print("Rebuilding CPI events...")
-        rebuild_cpi_events(db)
-        db.commit()
 
         print("Done syncing macro data.")
 
