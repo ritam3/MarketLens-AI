@@ -9,6 +9,9 @@ mcp==1.27.0
 # UI
 gradio==6.11.0
 
+# Connection
+requests==2.33.1
+
 # Database and migrations
 sqlalchemy==2.0.49
 psycopg[binary]==3.3.3
