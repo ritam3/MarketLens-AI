@@ -17,9 +17,10 @@ def test_run_ingestion_runs_steps_in_order_and_respects_skip(monkeypatch) -> Non
             "daily_bars": ("Sync daily bars", lambda: calls.append("daily_bars")),
             "macro": ("Sync macro data", lambda: calls.append("macro")),
             "fundamentals": ("Sync fundamentals", lambda: calls.append("fundamentals")),
+            "metrics": ("Build derived metrics", lambda: calls.append("metrics")),
         },
     )
 
     run_ingestion.main()
 
-    assert calls == ["seed", "daily_bars", "fundamentals"]
+    assert calls == ["seed", "daily_bars", "fundamentals", "metrics"]

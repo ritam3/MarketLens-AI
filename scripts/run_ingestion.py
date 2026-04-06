@@ -2,10 +2,22 @@
 from __future__ import annotations
 
 import argparse
+import sys
 import time
 from collections.abc import Callable
+from pathlib import Path
 
-from app.data.ingest import build_metrics, seed_instruments, sync_daily_bars, sync_fundamentals, sync_macro
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from app.data.ingest import (
+    build_metrics,
+    seed_instruments,
+    sync_daily_bars,
+    sync_fundamentals,
+    sync_macro,
+)
 
 StepFn = Callable[[], None]
 

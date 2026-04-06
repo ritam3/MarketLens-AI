@@ -6,6 +6,7 @@ from decimal import Decimal, InvalidOperation
 from sqlalchemy import text
 
 from app.data.clients.fred_client import FREDClient
+from app.data.ingest.prune_history import MACRO_OBSERVATIONS_PRUNE_TARGET, prune_entity_history
 
 SERIES_IDS = [
     "CPIAUCSL",   # CPI
@@ -133,6 +134,7 @@ def main() -> None:
             for obs in observations:
                 upsert_macro_observation(db, series_id, obs)
 
+            prune_entity_history(db, MACRO_OBSERVATIONS_PRUNE_TARGET, series_id)
             db.commit()
             print(f"Upserted {len(observations)} observations for {series_id}")
 

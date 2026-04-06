@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from sqlalchemy import text
 
+from app.data.ingest.prune_history import METRICS_PRUNE_TARGET, prune_entity_history
+
 
 def rebuild_metrics_for_instrument(db, instrument_id: int) -> int:
     delete_stmt = text(
@@ -165,6 +167,7 @@ def main() -> None:
 
             try:
                 count = rebuild_metrics_for_instrument(db, instrument_id)
+                prune_entity_history(db, METRICS_PRUNE_TARGET, instrument_id)
                 db.commit()
                 print(f"[{idx}/{len(instruments)}] Built {count} metric rows for {symbol}")
             except Exception as exc:

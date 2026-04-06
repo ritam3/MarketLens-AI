@@ -9,6 +9,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.data.clients.sec_edgar_client import SECEdgarClient
+from app.data.ingest.prune_history import FUNDAMENTALS_PRUNE_TARGET, prune_entity_history
 
 INSTRUMENTS_QUERY = text(
     """
@@ -386,6 +387,7 @@ def sync_fundamentals() -> None:
                     UPSERT_FUNDAMENTALS_QUERY,
                     [{"instrument_id": instrument_id, **row} for row in rows],
                 )
+                prune_entity_history(db, FUNDAMENTALS_PRUNE_TARGET, instrument_id)
                 db.commit()
                 print(f"[{index}/{total}] Upserted {len(rows)} fundamentals rows for {symbol}.")
             except Exception as exc:

@@ -16,6 +16,7 @@ requests==2.33.1
 sqlalchemy==2.0.49
 psycopg[binary]==3.3.3
 alembic==1.18.4
+psycopg2==2.9.11
 
 # Testing
 pytest==9.0.2

@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from sqlalchemy import text
 
 from app.data.clients.fmp_client import FMPClient
+from app.data.ingest.prune_history import DAILY_BARS_PRUNE_TARGET, prune_entity_history
 
 
 def fetch_instruments(db) -> list[dict]:
@@ -136,6 +137,7 @@ def main() -> None:
                 for row in rows:
                     upsert_daily_bar(db, instrument_id, row)
 
+                prune_entity_history(db, DAILY_BARS_PRUNE_TARGET, instrument_id)
                 db.commit()
                 print(f"[{idx}/{len(instruments)}] Upserted {len(rows)} rows for {symbol}")
 
