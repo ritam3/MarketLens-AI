@@ -4,6 +4,14 @@ MarketLens AI is an agentic analytics system that answers natural-language finan
 
 This project is built to demonstrate a production-style multi-agent workflow rather than a single prompt-to-SQL demo. The core idea is simple: let agents handle planning and reasoning, but use deterministic code for database safety, schema control, execution, and observability.
 
+## Demo video
+
+
+https://github.com/user-attachments/assets/0abc9cea-7a35-4a89-999e-91dfcfce6aa7
+
+
+
+
 ## Why This Project Matters
 
 - It uses a staged agent pipeline instead of one-shot prompt engineering.
