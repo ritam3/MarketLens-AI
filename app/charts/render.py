@@ -1,1 +1,0 @@
-"""Chart generation logic."""
