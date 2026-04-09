@@ -21,27 +21,142 @@ APP_DESCRIPTION = (
     "and macro data. The app returns a direct answer and keeps the SQL and raw "
     "rows available for inspection."
 )
-EXAMPLE_QUESTIONS = [
-    ["Which company has the highest market cap?", True, False],
-    ["What are the latest 5 instrument symbols in the database?", True, True],
-    ["Which 5 symbols have the highest latest market capitalization?", True, True],
-    ["List the latest 5 macro series titles.", True, False],
-]
+QUESTION_CATEGORIES: dict[str, list[str]] = {
+    "Company and market": [
+        "Which company has the highest market cap?",
+        "Show the 10 companies with the largest latest market caps.",
+        "Which stocks have the strongest latest 30-day returns?",
+        "Which symbols had the highest abnormal volume ratio on the latest date?",
+    ],
+    "Join-heavy": [
+        "Show the latest 10 companies with market cap, 30-day return, and 20-day volatility, sorted by market cap.",
+        "Which 10 companies have the highest latest market cap, along with sector and industry?",
+        "For the latest date available, list the top 10 companies by market cap with symbol, name, sector, and industry.",
+        "Which sectors contain the most companies in the top 50 by latest market cap?",
+    ],
+    "Price history": [
+        "What were the latest closing prices for AAPL, MSFT, and NVDA?",
+        "Show the last 20 trading days of close and volume for SPY.",
+        "Which instruments had the highest daily return on the latest trading date?",
+        "Which stocks had the biggest 30-day gains?",
+    ],
+    "Fundamentals": [
+        "Which companies had the highest latest quarterly revenue?",
+        "Show the latest quarterly revenue, net income, and EPS for Apple, Microsoft, and Amazon.",
+        "Which companies had negative net income in the latest reported quarter?",
+        "Show the latest free cash flow leaders.",
+    ],
+    "Macro": [
+        "What macro series are available in the database?",
+        "Show the latest 10 macro series titles.",
+        "What is the latest value for CPI-related series?",
+        "Show the recent observations for the federal funds rate.",
+    ],
+}
 CUSTOM_CSS = """
 :root {
-  --ml-bg: linear-gradient(135deg, #f7f3eb 0%, #efe6d4 45%, #dde7df 100%);
-  --ml-card: rgba(255, 252, 246, 0.88);
+  --ml-bg: #f1eadf;
+  --ml-card: #fffaf2;
   --ml-border: rgba(78, 61, 32, 0.12);
   --ml-ink: #1f2a1f;
   --ml-muted: #5f6d60;
   --ml-accent: #9c5b2e;
   --ml-accent-soft: rgba(156, 91, 46, 0.12);
+  --ml-panel: #fffaf2;
 }
 
 .gradio-container {
   background: var(--ml-bg);
   color: var(--ml-ink);
+  color-scheme: light;
   font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+}
+
+.gradio-container .prose,
+.gradio-container .prose p,
+.gradio-container .prose li,
+.gradio-container .prose strong,
+.gradio-container .prose h1,
+.gradio-container .prose h2,
+.gradio-container .prose h3,
+.gradio-container .prose h4,
+.gradio-container .prose code,
+.gradio-container label,
+.gradio-container .message,
+.gradio-container .message p,
+.gradio-container .message strong,
+.gradio-container .message code,
+.gradio-container textarea,
+.gradio-container input,
+.gradio-container button,
+.gradio-container select,
+.gradio-container .toast-body,
+.gradio-container .generating,
+.gradio-container .json-container,
+.gradio-container .json-container *,
+.gradio-container [role="listbox"],
+.gradio-container [role="option"],
+.gradio-container [role="combobox"],
+.gradio-container [data-testid="dropdown"] *,
+.gradio-container .chatbot *,
+.gradio-container .message-wrap *,
+.gradio-container .md *,
+.gradio-container .wrap *,
+.gradio-container .label-wrap * {
+  color: var(--ml-ink) !important;
+}
+
+.gradio-container .block,
+.gradio-container .panel,
+.gradio-container .form,
+.gradio-container .form > *,
+.gradio-container .wrap,
+.gradio-container .message,
+.gradio-container .message-wrap,
+.gradio-container .md,
+.gradio-container .json-container,
+.gradio-container textarea,
+.gradio-container input,
+.gradio-container button,
+.gradio-container select,
+.gradio-container [role="listbox"],
+.gradio-container [role="option"],
+.gradio-container [role="combobox"],
+.gradio-container [data-testid="dropdown"],
+.gradio-container [data-testid="dropdown"] > div,
+.gradio-container .chatbot,
+.gradio-container .chatbot .message,
+.gradio-container .chatbot .message-wrap,
+.gradio-container .prose {
+  background: var(--ml-panel) !important;
+}
+
+.gradio-container textarea,
+.gradio-container input,
+.gradio-container button,
+.gradio-container select,
+.gradio-container .message,
+.gradio-container .json-container,
+.gradio-container [role="combobox"],
+.gradio-container [role="listbox"],
+.gradio-container .block,
+.gradio-container .panel,
+.gradio-container .chatbot {
+  border-color: rgba(78, 61, 32, 0.18) !important;
+}
+
+.gradio-container .placeholder,
+.gradio-container ::placeholder,
+.gradio-container .prose em,
+.gradio-container .metadata,
+.gradio-container .message-wrap .icon-button,
+.gradio-container .form label span,
+.gradio-container .secondary-text {
+  color: var(--ml-muted) !important;
+}
+
+.gradio-container .prose {
+  max-width: none;
 }
 
 #ml-shell {
@@ -51,9 +166,7 @@ CUSTOM_CSS = """
 }
 
 #ml-hero {
-  background:
-    radial-gradient(circle at top left, rgba(189, 129, 67, 0.18), transparent 34%),
-    linear-gradient(140deg, rgba(255, 249, 240, 0.98), rgba(244, 238, 228, 0.9));
+  background: var(--ml-card);
   border: 1px solid var(--ml-border);
   border-radius: 28px;
   padding: 28px 30px 24px;
@@ -107,6 +220,41 @@ CUSTOM_CSS = """
   color: var(--ml-muted);
   font-size: 0.9rem;
 }
+
+.gradio-container details,
+.gradio-container summary,
+.gradio-container summary *,
+.gradio-container summary svg,
+.gradio-container button[aria-expanded],
+.gradio-container button[aria-expanded] *,
+.gradio-container button[aria-expanded] svg {
+  color: var(--ml-ink) !important;
+  fill: var(--ml-ink) !important;
+  stroke: var(--ml-ink) !important;
+}
+
+.gradio-container input[type="checkbox"] {
+  appearance: auto !important;
+  accent-color: var(--ml-accent) !important;
+  background: var(--ml-panel) !important;
+  border: 1px solid rgba(78, 61, 32, 0.35) !important;
+}
+
+.gradio-container .form input[type="checkbox"],
+.gradio-container .form label input[type="checkbox"],
+.gradio-container label input[type="checkbox"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.gradio-container .form label,
+.gradio-container .form label *,
+.gradio-container label,
+.gradio-container label *,
+.gradio-container .checkbox,
+.gradio-container .checkbox * {
+  color: var(--ml-ink) !important;
+}
 """
 
 
@@ -124,6 +272,39 @@ def _summarize_execution(execution: dict[str, Any], *, include_rows: bool) -> di
     if include_rows:
         summary["rows"] = execution.get("rows", [])
     return summary
+
+
+def _select_example_question(selected_question: str | None) -> str:
+    return selected_question or ""
+
+
+def _submit_marketlens_query(
+    message: str,
+    history: list[dict[str, Any]] | None,
+    show_sql: bool,
+    show_rows: bool,
+) -> tuple[list[dict[str, Any]], str, str, dict[str, Any]]:
+    existing_history = list(history or [])
+    if not message.strip():
+        return existing_history, "", "```sql\n-- no query executed\n```", {
+            "row_count": 0,
+            "referenced_tables": [],
+            "rows": [],
+        }
+
+    answer, sql_panel, execution_panel = run_marketlens_query(
+        message,
+        existing_history,
+        show_sql,
+        show_rows,
+    )
+    existing_history.extend(
+        [
+            {"role": "user", "content": message},
+            {"role": "assistant", "content": answer},
+        ]
+    )
+    return existing_history, "", sql_panel, execution_panel
 
 
 def run_marketlens_query(
@@ -188,6 +369,7 @@ def build_demo() -> gr.Blocks:
 
             with gr.Row(equal_height=True):
                 with gr.Column(scale=7, elem_id="ml-chat-panel"):
+                    history_state = gr.State([])
                     chatbot = gr.Chatbot(
                         label="Conversation",
                         height=620,
@@ -195,43 +377,73 @@ def build_demo() -> gr.Blocks:
                         placeholder="Ask about companies, returns, volatility, macro data, or the latest records in the warehouse.",
                         avatar_images=(None, None),
                     )
-                    textbox = gr.Textbox(
-                        placeholder="Try: Which company has the highest market cap?",
-                        show_label=False,
-                        container=False,
-                        lines=2,
-                    )
+                    with gr.Row():
+                        textbox = gr.Textbox(
+                            placeholder="Try: Which company has the highest market cap?",
+                            show_label=False,
+                            container=False,
+                            lines=2,
+                            scale=8,
+                        )
+                        send_button = gr.Button("Ask", scale=1, variant="primary")
+                    clear_button = gr.Button("Clear conversation", variant="secondary")
 
                 with gr.Column(scale=4, min_width=320, elem_id="ml-side-panel"):
-                    gr.Markdown(
-                        """
-### Query Lens
+                    with gr.Accordion("Query Lens", open=True):
+                        gr.Markdown(
+                            """
 Use the toggles below to control how much debugging detail appears beside the answer.
 
 The main chat always returns a natural-language response grounded in the executed rows.
 """.strip(),
-                        elem_classes=["ml-section-note"],
-                    )
-                    show_sql = gr.Checkbox(label="Show validated SQL", value=True)
-                    show_rows = gr.Checkbox(label="Show raw rows", value=True)
-                    sql_view = gr.Markdown(label="Validated SQL")
-                    execution_view = gr.JSON(label="Execution snapshot")
-                    gr.Markdown(
-                        "Questions run through table selection, SQL generation, SQL critique, execution, and a final answer-writing agent.",
-                        elem_classes=["ml-footer"],
-                    )
+                            elem_classes=["ml-section-note"],
+                        )
+                        show_sql = gr.Checkbox(label="Show validated SQL", value=True)
+                        show_rows = gr.Checkbox(label="Show raw rows", value=True)
+                        sql_view = gr.Markdown(label="Validated SQL")
+                        execution_view = gr.JSON(label="Execution snapshot")
+                        gr.Markdown(
+                            "Questions run through table selection, SQL generation, SQL critique, execution, and a final answer-writing agent.",
+                            elem_classes=["ml-footer"],
+                        )
+                    with gr.Accordion("Browse By Category", open=True):
+                        for category, questions in QUESTION_CATEGORIES.items():
+                            dropdown = gr.Dropdown(
+                                label=category,
+                                choices=questions,
+                                value=None,
+                                allow_custom_value=False,
+                                interactive=True,
+                            )
+                            dropdown.change(
+                                fn=_select_example_question,
+                                inputs=dropdown,
+                                outputs=textbox,
+                            )
 
-            gr.ChatInterface(
-                fn=run_marketlens_query,
-                chatbot=chatbot,
-                textbox=textbox,
-                additional_inputs=[show_sql, show_rows],
-                additional_outputs=[sql_view, execution_view],
-                examples=EXAMPLE_QUESTIONS,
-                autofocus=True,
-                save_history=True,
-                fill_height=True,
-                show_progress="minimal",
+            send_event = textbox.submit(
+                fn=_submit_marketlens_query,
+                inputs=[textbox, history_state, show_sql, show_rows],
+                outputs=[chatbot, textbox, sql_view, execution_view],
+            )
+            send_button_event = send_button.click(
+                fn=_submit_marketlens_query,
+                inputs=[textbox, history_state, show_sql, show_rows],
+                outputs=[chatbot, textbox, sql_view, execution_view],
+            )
+            send_event.then(
+                fn=lambda history: history,
+                inputs=chatbot,
+                outputs=history_state,
+            )
+            send_button_event.then(
+                fn=lambda history: history,
+                inputs=chatbot,
+                outputs=history_state,
+            )
+            clear_button.click(
+                fn=lambda: ([], [], "", "```sql\n-- no query executed\n```", {}),
+                outputs=[chatbot, history_state, textbox, sql_view, execution_view],
             )
     demo.theme = theme
     demo.css = CUSTOM_CSS
